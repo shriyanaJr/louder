@@ -15,9 +15,9 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Public Sans",system-ui,sans-serif}
 h1,h2,h3{font-family:Archivo,"Arial Narrow",Impact,sans-serif;font-stretch:80%;line-height:1.05;margin:0}
-header{padding:28px 20px 8px;max-width:1120px;margin:0 auto}
+header{padding:28px 20px 8px;max-width:1120px;margin:0 auto;text-align:center}
 h1{font-size:clamp(44px,9vw,84px);font-weight:900;letter-spacing:-.02em}
-header p{max-width:56ch;color:var(--muted);font-size:18px;margin:10px 0 0}
+header p{max-width:56ch;color:var(--muted);font-size:18px;margin:10px auto 0}
 main{max-width:1120px;margin:0 auto;padding:16px 20px 60px;display:grid;gap:22px;grid-template-columns:1fr}
 @media(min-width:900px){main{grid-template-columns:minmax(0,5fr) minmax(0,6fr)}}
 .panel{background:var(--panel);border:2px solid var(--ink);border-radius:10px;padding:20px}
@@ -34,6 +34,7 @@ input[type=range]{width:100%;accent-color:var(--blue)}
 button{font:700 15px "Public Sans",sans-serif;border:2px solid var(--ink);border-radius:6px;padding:9px 14px;cursor:pointer;background:var(--yellow);color:var(--onyellow)}
 button.ghost{background:transparent;color:var(--ink)}
 button:hover{filter:brightness(.95)}
+a.btn{display:inline-block;text-decoration:none;font:700 15px "Public Sans",sans-serif;border:2px solid var(--ink);border-radius:6px;padding:9px 14px;background:transparent;color:var(--ink);white-space:nowrap}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .scorebox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .sign{width:118px;height:118px;flex:none;margin:14px 16px 14px 14px;background:var(--yellow);border:5px solid #0E1A3A;border-radius:12px;transform:rotate(45deg);display:grid;place-items:center;box-shadow:0 0 0 3px var(--yellow)}
@@ -51,6 +52,8 @@ button:hover{filter:brightness(.95)}
 .saved li{display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid var(--line);padding:8px 0;list-style:none}
 .saved ul{padding:0;margin:0}
 .target{border-left:6px solid var(--yellow);background:var(--bg);padding:10px 14px;margin:14px 0;border-radius:0 6px 6px 0}
+.previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:8px}.previews img,.previews video{width:100%;height:96px;object-fit:cover;border-radius:6px;border:1.5px solid var(--line);background:var(--bg)}
+input[type=file]{width:100%;font:inherit;color:var(--ink)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.on{opacity:1}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -59,12 +62,12 @@ button:hover{filter:brightness(.95)}
 <body>
 <header>
   <h1>Louder</h1>
-  <p>Describe a problem in your community. Louder scores how strong your case is, tells you who can actually fix it, and writes your letter and call script.</p>
+  <p>Is something in your community being ignored? Tell us what’s going on. Louder shows how strong your case is, who can actually help, and writes a letter and call script in plain, human words.</p>
 </header>
 <main>
   <section class="panel" aria-labelledby="f">
     <h2 id="f">Your problem</h2>
-    <label for="problem">What is wrong?</label>
+    <label for="problem">What’s going wrong?</label>
     <input id="problem" type="text" placeholder="No crosswalk at the entrance of our school">
     <div class="row">
       <div><label for="cat">Type of problem</label><select id="cat"></select></div>
@@ -80,12 +83,26 @@ button:hover{filter:brightness(.95)}
     <p class="hint">0 means an annoyance. 5 means someone could be seriously hurt.</p>
     <label>Evidence you have</label>
     <div class="checks" id="evid"></div>
-    <label for="ask">What should be done?</label>
+    <label for="files">Photos or videos (optional)</label>
+    <input id="files" type="file" accept="image/*,video/*" multiple>
+    <p class="hint">These stay on your device. Louder can’t upload them, so attach them yourself when you send your message.</p>
+    <div id="previews" class="previews"></div>
+    <label for="further">Further written evidence</label>
+    <textarea id="further" placeholder="Dates, what neighbors have told you, request or ticket numbers, anything that backs up your story"></textarea>
+    <label for="ask">What would you like done about it?</label>
     <textarea id="ask" placeholder="Fund and install a marked crosswalk with a flashing beacon"></textarea>
     <div class="row">
       <div><label for="name">Your name</label><input id="name" type="text" placeholder="Alex Rivera"></div>
       <div><label for="rep">Your representative’s last name</label><input id="rep" type="text" placeholder="Smith"></div>
     </div>
+    <label for="zip">Not sure who your representative is?</label>
+    <div class="row" style="grid-template-columns:1fr auto;align-items:center">
+      <input id="zip" type="text" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="Your 5-digit ZIP code">
+      <a id="findrep" class="btn" href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener">Find my representative</a>
+    </div>
+    <p class="hint">Opens the official House.gov lookup in a new tab. Some ZIP codes cover more than one district, so use your street address if it asks. Then type the last name in the box above.</p>
+    <label for="phone">Your representative’s office phone (optional)</label>
+    <input id="phone" type="text" inputmode="tel" placeholder="Paste it from their website, like (555) 555-0100">
     <div class="actions">
       <button id="sample" class="ghost" type="button">Try an example</button>
       <button id="save" type="button">Save this case</button>
@@ -108,7 +125,10 @@ button:hover{filter:brightness(.95)}
       <button role="tab" id="t2" aria-selected="false" type="button">60-second call</button>
     </div>
     <div class="doc" id="doc" tabindex="0"></div>
-    <div class="actions"><button id="copy" type="button">Copy text</button></div>
+    <div class="actions"><button id="copy" type="button">Copy text</button><button id="mail" class="ghost" type="button">Open in email app</button></div>
+    <p class="hint">Most House offices take messages through a form on their website, so you may need to paste the letter there instead of emailing it.</p>
+    <h3 style="font-size:20px;margin-top:22px">Who to call</h3>
+    <div id="who" class="target"></div>
   </section>
 </main>
 <div class="toast" id="toast" role="status"></div>
@@ -166,15 +186,15 @@ var EVID = [
   ["local","I already asked my city or county"]
 ];
 var RISKTXT = [
-  "It is not an immediate danger, but it steadily makes daily life harder.",
-  "It is a recurring inconvenience with a modest safety side.",
-  "It creates a real, ongoing safety concern.",
-  "It puts people at meaningful risk of harm.",
-  "It puts people at serious risk of harm.",
-  "It poses a serious and immediate risk to people’s safety."
+  "It isn’t dangerous, but it wears on people’s daily lives.",
+  "It’s mostly an inconvenience, with a bit of a safety concern.",
+  "It’s a real, ongoing safety concern for people here.",
+  "People here are at real risk of getting hurt.",
+  "I’m genuinely worried someone will be seriously hurt.",
+  "This is an urgent safety problem, and I’m afraid someone will be badly hurt if nothing changes."
 ];
 var $ = function(id){return document.getElementById(id)};
-var tab = 1;
+var tab = 1, FILES = [], urls = [];
 
 // ---------- build form ----------
 Object.keys(CATS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=CATS[k].label;$("cat").appendChild(o)});
@@ -187,7 +207,7 @@ function read(){
   return {
     problem:$("problem").value.trim(), cat:$("cat").value, subIdx:parseInt($("sub").value)||0, place:$("place").value.trim(),
     people:Math.max(1,parseInt($("people").value)||1), months:Math.max(0,parseInt($("months").value)||0),
-    risk:parseInt($("risk").value), ev:ev, ask:$("ask").value.trim(),
+    risk:parseInt($("risk").value), ev:ev, ask:$("ask").value.trim(), further:$("further").value.trim(), phone:$("phone").value.trim(), nfiles:FILES.length,
     name:$("name").value.trim(), rep:$("rep").value.trim()
   };
 }
@@ -204,10 +224,10 @@ function score(d){
   return {parts:parts,total:total};
 }
 function verdict(t){
-  if(t<35) return ["Build the case","Gather evidence and talk to neighbors before you send anything."];
-  if(t<60) return ["Getting stronger","The issue is real. A few more pieces of proof will make it hard to dismiss."];
-  if(t<80) return ["Strong case","This is ready to send. The tips below can still sharpen it."];
-  return ["Send it","This is a high-priority, well-documented case. Send it and follow up."];
+  if(t<35) return ["Build the case","You’re just getting started. Collect a bit more proof and talk to your neighbors before you send this."];
+  if(t<60) return ["Getting stronger","This is clearly a real problem. A little more proof will make it hard to brush aside."];
+  if(t<80) return ["Strong case","This is ready to send. The tips below can make it even stronger."];
+  return ["Send it","This is a serious, well-documented case. Send it, then follow up."];
 }
 function target(d,s){
   var c = CATS[d.cat], local = d.ev.indexOf("local")>-1;
@@ -231,29 +251,32 @@ function tips(d,s){
 // ---------- writing ----------
 function dur(m){ if(m<1) return " recently"; if(m<12) return " for about "+m+(m===1?" month":" months"); var y=Math.round(m/12*10)/10; return " for about "+y+(y===1?" year":" years"); }
 function evText(d){
-  var m = {photos:"photos and video",log:"a dated log of incidents",neighbors:"support from neighbors",report:"an official report on file"};
+  var m = {photos:"photos and video",log:"a dated log of what has happened",neighbors:"support from my neighbors",report:"an official report on file"};
   var l = d.ev.filter(function(k){return m[k]}).map(function(k){return m[k]});
-  if(!l.length) return "";
-  if(l.length>1) l[l.length-1]="and "+l[l.length-1];
-  return "I have documented this with "+l.join(l.length>2?", ":" ")+". ";
+  var t = "";
+  if(l.length){ if(l.length>1) l[l.length-1]="and "+l[l.length-1]; t = "I’ve kept track of it carefully, with "+l.join(l.length>2?", ":" ")+". "; }
+  if(d.nfiles) t += "I’ve also gathered "+d.nfiles+(d.nfiles===1?" photo or video":" photos and videos")+" that I’m glad to send. ";
+  return t;
 }
+function lc(t){return t.charAt(0).toLowerCase()+t.slice(1).replace(/\.$/,"")}
 function letter(d){
-  var c = CATS[d.cat], p = d.problem||"[describe the problem]", rep = d.rep?("Representative "+d.rep):"Representative [last name]";
+  var p = d.problem||"[describe the problem]", rep = d.rep?("Representative "+d.rep):"Representative [last name]";
   var who = d.name||"[your name]", where = d.place?(" near "+d.place):"";
-  var s = "Dear "+rep+",\n\nMy name is "+who+", and I am a constituent writing about an issue involving "+subLabel(d).toLowerCase()+where+": "+p.charAt(0).toLowerCase()+p.slice(1)+".\n\n";
-  s += "This problem affects roughly "+d.people.toLocaleString()+" people and has gone unresolved"+dur(d.months)+". "+RISKTXT[d.risk]+" "+evText(d);
-  if(d.ev.indexOf("local")>-1) s += "I have already raised it with my local government. ";
-  s += "\n\nI respectfully ask that you "+(d.ask?d.ask.charAt(0).toLowerCase()+d.ask.slice(1).replace(/\.$/,""):"[state exactly what you want done]")+".";
-  if(progsFor(d).length) s += " I understand that "+joinList(progsFor(d))+" may be avenues to explore, and I would welcome your office’s guidance.";
-  s += "\n\nCould your office tell me who on your staff is following this issue, and what the next step would be? I am glad to share photos, dates, and names of neighbors who support this.\n\nThank you for your time and service.\n\nSincerely,\n"+who;
+  var s = "Dear "+rep+",\n\nMy name is "+who+", and I’m one of your constituents. I’m writing about something that has been worrying a lot of us"+where+": "+lc(p)+" ("+subLabel(d).toLowerCase()+").\n\n";
+  s += "It affects roughly "+d.people.toLocaleString()+" people, and it has been going on"+dur(d.months)+". "+RISKTXT[d.risk]+" "+evText(d);
+  if(d.ev.indexOf("local")>-1) s += "I’ve already raised it with my city or county, and I’d like to bring it to you as well. ";
+  if(d.further) s += "\n\nA few more details that matter to me:\n"+d.further;
+  s += "\n\nHere’s what I’m hoping you can help with: "+(d.ask?lc(d.ask):"[say exactly what you’d like done]")+".";
+  if(progsFor(d).length) s += " I’ve read that "+joinList(progsFor(d))+" may be worth looking into, and I’d really value your office’s guidance.";
+  s += "\n\nI know your office hears from a lot of people, so thank you for taking the time to read this. Could someone on your staff let me know who is looking into it and what the next step might be? I’m happy to share photos, dates, or put you in touch with neighbors who feel the same way.\n\nThank you, truly.\n\nWarmly,\n"+who;
   return s;
 }
 function call(d){
-  var c = CATS[d.cat], who = d.name||"[your name]", p = d.problem||"[the problem]";
-  return "Hello, my name is "+who+" and I’m a constituent"+(d.place?" from "+d.place:"")+".\n\n"+
-  "I’m calling about "+p.charAt(0).toLowerCase()+p.slice(1)+". It affects about "+d.people.toLocaleString()+" people and has been going on"+dur(d.months)+". "+RISKTXT[d.risk]+"\n\n"+
-  "I’m asking the Representative to "+(d.ask?d.ask.charAt(0).toLowerCase()+d.ask.slice(1).replace(/\.$/,""):"[your ask]")+".\n\n"+
-  "Who on your staff handles "+c.label.toLowerCase()+"? Can I send them photos and details by email? May I leave my phone number for a follow-up?\n\nThank you.";
+  var who = d.name||"[your name]", p = d.problem||"[the problem]";
+  return "Hi, my name is "+who+" and I’m a constituent"+(d.place?" from "+d.place:"")+". Thanks for taking my call.\n\n"+
+  "I’m calling about "+lc(p)+". It affects around "+d.people.toLocaleString()+" people and has been going on"+dur(d.months)+". "+RISKTXT[d.risk]+"\n\n"+
+  "What I’m hoping the Representative can do is "+(d.ask?lc(d.ask):"[your ask]")+".\n\n"+
+  "Could you tell me who on the staff handles "+CATS[d.cat].label.toLowerCase()+"? I’d be glad to email photos and details. And may I leave my phone number in case someone wants to follow up?\n\nThank you so much for your time.";
 }
 
 // ---------- render ----------
@@ -275,7 +298,19 @@ function render(){
   var tl = $("tips"); tl.textContent = "";
   tips(d,s).forEach(function(x){var li=document.createElement("li");li.textContent=x;tl.appendChild(li)});
   $("doc").textContent = tab===1 ? letter(d) : call(d);
+  renderWho(d);
   $("t1").setAttribute("aria-selected",tab===1); $("t2").setAttribute("aria-selected",tab===2);
+}
+function renderWho(d){
+  var w = $("who"); w.textContent = "";
+  function line(t){var p=document.createElement("p");p.style.margin="0 0 8px";p.textContent=t;w.appendChild(p);return p}
+  function tel(p,num,label){var a=document.createElement("a");a.href="tel:+"+num;a.textContent=label;a.style.fontWeight="700";p.appendChild(a)}
+  var dg = (d.phone||"").replace(/\D/g,"");
+  if(dg.length===10||(dg.length===11&&dg.charAt(0)==="1")) tel(line("Your representative’s office: "), dg.length===10?"1"+dg:dg, d.phone);
+  else line("Add your representative’s office number above and it will appear here as a tap-to-call link.");
+  line("Don’t have it? Open your representative’s website from the House.gov lookup and find the Contact page. Most offices list a Washington, D.C. number plus district offices closer to home, and a district office is often the easiest place to start.");
+  tel(line("Or call the U.S. House switchboard and ask to be connected to your representative’s office: "), "12022243121", "(202) 224-3121");
+  line("Tell whoever answers that you’re a constituent, name the issue, and ask who on the staff handles it.");
 }
 function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},1800)}
 
@@ -289,12 +324,33 @@ $("copy").onclick = function(){
   function fb(){var a=document.createElement("textarea");a.value=txt;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Copied")}catch(e){toast("Select the text and copy it")}document.body.removeChild(a)}
   try{ navigator.clipboard.writeText(txt).then(function(){toast("Copied")},fb) }catch(e){ fb() }
 };
+$("zip").addEventListener("input",function(){
+  var z = $("zip").value.replace(/\D/g,"");
+  $("findrep").href = z.length===5 ? "https://www.house.gov/htbin/findrep?ZIP="+z : "https://www.house.gov/representatives/find-your-representative";
+});
+$("files").addEventListener("change",function(){
+  urls.forEach(function(u){URL.revokeObjectURL(u)}); urls = [];
+  FILES = Array.prototype.slice.call($("files").files).filter(function(f){return /^(image|video)\//.test(f.type)}).slice(0,12);
+  var box = $("previews"); box.textContent = "";
+  FILES.forEach(function(f){
+    var u = URL.createObjectURL(f); urls.push(u);
+    var isV = f.type.indexOf("video")===0, el = document.createElement(isV?"video":"img");
+    el.src = u; if(isV){el.controls = true; el.preload = "metadata"} else el.alt = f.name;
+    box.appendChild(el);
+  });
+  render();
+});
+$("mail").onclick = function(){
+  var d = read(), subj = "Constituent concern: "+(d.problem||"a problem in our community");
+  window.location.href = "mailto:?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(letter(d));
+};
 $("sample").onclick = function(){
   $("problem").value="No crosswalk at the entrance of our elementary school";
   $("cat").value="roads";fillSubs();$("sub").value="0"; $("place").value="Maple St & 5th Ave, Boise";
   $("people").value=480; $("months").value=14; $("risk").value=4;
   $("ask").value="Fund a marked crosswalk with a flashing beacon and a crossing guard";
   $("name").value="Alex Rivera"; $("rep").value="Smith";
+  $("further").value="Two near misses were reported to the school office in March. City request #4821 is still open.";
   ["photos","log","neighbors","report","local"].forEach(function(k,i){$("ev_"+k).checked = i<4});
   render();
 };
@@ -304,7 +360,7 @@ function load(){try{return JSON.parse(localStorage.getItem("louder.cases")||"[]"
 function store(a){try{localStorage.setItem("louder.cases",JSON.stringify(a))}catch(e){toast("Saving is blocked in this browser")}}
 function setForm(d){
   $("problem").value=d.problem;$("cat").value=d.cat;fillSubs();$("sub").value=String(d.subIdx||0);$("place").value=d.place;$("people").value=d.people;$("months").value=d.months;
-  $("risk").value=d.risk;$("ask").value=d.ask;$("name").value=d.name;$("rep").value=d.rep;
+  $("risk").value=d.risk;$("further").value=d.further||"";$("phone").value=d.phone||"";$("ask").value=d.ask;$("name").value=d.name;$("rep").value=d.rep;
   EVID.forEach(function(e){$("ev_"+e[0]).checked = d.ev.indexOf(e[0])>-1});
   render();
 }
