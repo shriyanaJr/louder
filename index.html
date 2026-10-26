@@ -68,8 +68,9 @@ button:hover{filter:brightness(.95)}
     <input id="problem" type="text" placeholder="No crosswalk at the entrance of our school">
     <div class="row">
       <div><label for="cat">Type of problem</label><select id="cat"></select></div>
-      <div><label for="place">Where?</label><input id="place" type="text" placeholder="Maple St &amp; 5th Ave, Boise"></div>
+      <div><label for="sub">More specifically</label><select id="sub"></select></div>
     </div>
+    <label for="place">Where?</label><input id="place" type="text" placeholder="Maple St &amp; 5th Ave, Boise">
     <div class="row">
       <div><label for="people">People affected</label><input id="people" type="number" min="1" value="200"></div>
       <div><label for="months">Months it has gone on</label><input id="months" type="number" min="0" value="6"></div>
@@ -115,15 +116,48 @@ button:hover{filter:brightness(.95)}
 <script>
 // ---------- data ----------
 var CATS = {
-  roads:   {label:"Roads, sidewalks and crossings", fit:0.9, progs:["the Safe Streets and Roads for All grant program","federal-aid highway funding"]},
-  safety:  {label:"Public safety", fit:0.6, progs:["Department of Justice community policing and violence-prevention grants"]},
-  schools: {label:"Schools and education", fit:0.7, progs:["Department of Education funding streams such as Title I"]},
-  env:     {label:"Environment and clean water", fit:0.85, progs:["EPA water and brownfield cleanup grants"]},
-  housing: {label:"Housing", fit:0.75, progs:["HUD housing programs"]},
-  health:  {label:"Health and mental health", fit:0.7, progs:["HHS community health and behavioral health funding"]},
-  internet:{label:"Internet and technology access", fit:0.95, progs:["the BEAD broadband program","FCC connectivity programs"]},
-  other:   {label:"Another local issue", fit:0.3, progs:[]}
+  roads:{label:"Roads, sidewalks and transit", fit:0.9, progs:["the Safe Streets and Roads for All grant program","federal-aid highway funding"], subs:[
+    ["Unsafe crossing or intersection",null],["Missing or broken sidewalk",null],["Potholes and road damage",null],
+    ["Speeding and dangerous driving",null],["Bus or transit service",["Federal Transit Administration grants"]],["Bike and walking paths",null]]},
+  safety:{label:"Public safety", fit:0.6, progs:["Department of Justice community policing and violence-prevention grants"], subs:[
+    ["Crime in my area",null],["Gun violence prevention",null],["Slow emergency response",null],
+    ["Drug and overdose crisis",["federal opioid response and treatment funding"]],["Domestic violence resources",["Violence Against Women Act programs"]],
+    ["Disaster preparedness",["FEMA hazard mitigation grants"]]]},
+  schools:{label:"Schools and education", fit:0.7, progs:["Department of Education funding streams such as Title I"], subs:[
+    ["Underfunded school",null],["Special education support",["IDEA special education funding"]],["School safety",null],
+    ["Student mental health",null],["Childcare access",["Child Care and Development Block Grant funding"]],
+    ["College and trade-school costs",["Pell Grants and federal student aid"]]]},
+  env:{label:"Environment and climate", fit:0.85, progs:["EPA grants and cleanup programs"], subs:[
+    ["Unsafe drinking water",["EPA drinking water state revolving funds"]],["Air pollution",null],["Dumping or contamination",["EPA brownfield cleanup grants"]],
+    ["Flooding and drainage",["FEMA hazard mitigation grants"]],["Wildfire and smoke",["FEMA and wildfire mitigation funding"]],["Clean energy access",null]]},
+  housing:{label:"Housing and homelessness", fit:0.75, progs:["HUD housing programs"], subs:[
+    ["Unaffordable rent",null],["Homelessness",["HUD Continuum of Care homelessness funding"]],["Unsafe or poorly kept rentals",null],
+    ["Not enough new housing",null],["Eviction and foreclosure",null]]},
+  health:{label:"Health care and mental health", fit:0.7, progs:["HHS community health funding"], subs:[
+    ["No clinic or doctor nearby",["federally qualified health center funding"]],["Mental health services",["SAMHSA mental health grants"]],
+    ["Prescription and care costs",null],["Addiction treatment",["SAMHSA treatment grants"]],["Maternal and child health",null]]},
+  internet:{label:"Internet and technology", fit:0.95, progs:["the BEAD broadband program","FCC connectivity programs"], subs:[
+    ["No broadband available",null],["Internet too slow or costly",["FCC affordability and connectivity programs"]],
+    ["Cell service dead zones",null],["Digital skills training",null],["Online scams and safety",null]]},
+  econ:{label:"Jobs, money and the economy", fit:0.7, progs:["Department of Labor workforce programs","Small Business Administration programs"], subs:[
+    ["Not enough good jobs",null],["Job training",["Workforce Innovation and Opportunity Act programs"]],
+    ["Small business support",["Small Business Administration programs"]],["Hunger and food access",["SNAP and WIC"]],["Cost of living",null]]},
+  access:{label:"Accessibility and disability", fit:0.8, progs:["Americans with Disabilities Act enforcement and accessibility funding"], subs:[
+    ["Inaccessible buildings",null],["Inaccessible transit",["Federal Transit Administration accessibility funding"]],
+    ["Services for people with disabilities",null],["Inaccessible websites and apps",null]]},
+  seniors:{label:"Seniors and veterans", fit:0.9, progs:["Older Americans Act programs"], subs:[
+    ["Veterans benefits and care",["Department of Veterans Affairs benefits and care"]],["Senior isolation and services",["Older Americans Act programs"]],
+    ["Medicare or Social Security problem",["casework help with Medicare and Social Security"]],["Elder fraud",null]]},
+  parks:{label:"Parks, libraries and community spaces", fit:0.4, progs:["the Land and Water Conservation Fund"], subs:[
+    ["Park needs repair",["the Land and Water Conservation Fund"]],["No youth programs",null],["Library or community center",["Institute of Museum and Library Services grants"]],["Arts and culture",null]]},
+  gov:{label:"Government services and red tape", fit:0.8, progs:["casework services for problems with federal agencies"], subs:[
+    ["Stuck with a federal agency",["casework services for problems with federal agencies"]],["Local permit or service delays",[]],["Voting access",[]]]},
+  other:{label:"Something else", fit:0.3, progs:[], subs:[["Another community issue",null]]}
 };
+function subLabel(d){return CATS[d.cat].subs[d.subIdx||0][0]}
+function progsFor(d){var x=CATS[d.cat].subs[d.subIdx||0][1];return x||CATS[d.cat].progs}
+function joinList(a){return a.length<3?a.join(" and "):a.slice(0,-1).join(", ")+", and "+a[a.length-1]}
+function fillSubs(){var sel=$("sub");sel.textContent="";CATS[$("cat").value].subs.forEach(function(x,i){var o=document.createElement("option");o.value=i;o.textContent=x[0];sel.appendChild(o)})}
 var EVID = [
   ["photos","I have photos or video"],
   ["log","I have written down dates and incidents"],
@@ -144,13 +178,14 @@ var tab = 1;
 
 // ---------- build form ----------
 Object.keys(CATS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=CATS[k].label;$("cat").appendChild(o)});
+fillSubs();
 EVID.forEach(function(e){var l=document.createElement("label");var c=document.createElement("input");c.type="checkbox";c.id="ev_"+e[0];var s=document.createElement("span");s.textContent=e[1];l.appendChild(c);l.appendChild(s);$("evid").appendChild(l)});
 
 // ---------- read + score ----------
 function read(){
   var ev = EVID.filter(function(e){return $("ev_"+e[0]).checked}).map(function(e){return e[0]});
   return {
-    problem:$("problem").value.trim(), cat:$("cat").value, place:$("place").value.trim(),
+    problem:$("problem").value.trim(), cat:$("cat").value, subIdx:parseInt($("sub").value)||0, place:$("place").value.trim(),
     people:Math.max(1,parseInt($("people").value)||1), months:Math.max(0,parseInt($("months").value)||0),
     risk:parseInt($("risk").value), ev:ev, ask:$("ask").value.trim(),
     name:$("name").value.trim(), rep:$("rep").value.trim()
@@ -176,8 +211,9 @@ function verdict(t){
 }
 function target(d,s){
   var c = CATS[d.cat], local = d.ev.indexOf("local")>-1;
+  if(d.cat==="gov" && d.subIdx===0) return "Contact your U.S. Representative’s office. Helping constituents who are stuck with a federal agency is one of the main things a House office does, so send this now.";
   if(!local) return "Start local. Ask your city or county first and keep the reply. Representatives take a case more seriously when local channels have already been tried.";
-  if(c.fit>=0.7 && s.total>=50) return "Send this to your U.S. Representative. Federal programs can fund this kind of fix" + (c.progs.length?": ask about "+c.progs.join(" and ")+".":".");
+  if(c.fit>=0.7 && s.total>=50) return "Send this to your U.S. Representative. Federal programs can fund this kind of fix" + (progsFor(d).length?": ask about "+joinList(progsFor(d))+".":".");
   if(c.fit>=0.7) return "Federal money can help here, but strengthen the case first, then send it to your U.S. Representative.";
   return "This is mostly handled locally or by your state. Send it to your city council and state legislator, and copy your U.S. Representative.";
 }
@@ -204,11 +240,11 @@ function evText(d){
 function letter(d){
   var c = CATS[d.cat], p = d.problem||"[describe the problem]", rep = d.rep?("Representative "+d.rep):"Representative [last name]";
   var who = d.name||"[your name]", where = d.place?(" near "+d.place):"";
-  var s = "Dear "+rep+",\n\nMy name is "+who+", and I am a constituent writing about a "+c.label.toLowerCase()+" concern"+where+": "+p.charAt(0).toLowerCase()+p.slice(1)+".\n\n";
+  var s = "Dear "+rep+",\n\nMy name is "+who+", and I am a constituent writing about an issue involving "+subLabel(d).toLowerCase()+where+": "+p.charAt(0).toLowerCase()+p.slice(1)+".\n\n";
   s += "This problem affects roughly "+d.people.toLocaleString()+" people and has gone unresolved"+dur(d.months)+". "+RISKTXT[d.risk]+" "+evText(d);
   if(d.ev.indexOf("local")>-1) s += "I have already raised it with my local government. ";
   s += "\n\nI respectfully ask that you "+(d.ask?d.ask.charAt(0).toLowerCase()+d.ask.slice(1).replace(/\.$/,""):"[state exactly what you want done]")+".";
-  if(c.progs.length) s += " I understand that "+c.progs.join(" and ")+" may be avenues to explore, and I would welcome your office’s guidance.";
+  if(progsFor(d).length) s += " I understand that "+joinList(progsFor(d))+" may be avenues to explore, and I would welcome your office’s guidance.";
   s += "\n\nCould your office tell me who on your staff is following this issue, and what the next step would be? I am glad to share photos, dates, and names of neighbors who support this.\n\nThank you for your time and service.\n\nSincerely,\n"+who;
   return s;
 }
@@ -244,6 +280,7 @@ function render(){
 function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},1800)}
 
 // ---------- events ----------
+$("cat").addEventListener("input",fillSubs);
 document.querySelectorAll("input,select,textarea").forEach(function(el){el.addEventListener("input",render)});
 $("t1").onclick = function(){tab=1;render()};
 $("t2").onclick = function(){tab=2;render()};
@@ -254,7 +291,7 @@ $("copy").onclick = function(){
 };
 $("sample").onclick = function(){
   $("problem").value="No crosswalk at the entrance of our elementary school";
-  $("cat").value="roads"; $("place").value="Maple St & 5th Ave, Boise";
+  $("cat").value="roads";fillSubs();$("sub").value="0"; $("place").value="Maple St & 5th Ave, Boise";
   $("people").value=480; $("months").value=14; $("risk").value=4;
   $("ask").value="Fund a marked crosswalk with a flashing beacon and a crossing guard";
   $("name").value="Alex Rivera"; $("rep").value="Smith";
@@ -266,7 +303,7 @@ $("sample").onclick = function(){
 function load(){try{return JSON.parse(localStorage.getItem("louder.cases")||"[]")}catch(e){return []}}
 function store(a){try{localStorage.setItem("louder.cases",JSON.stringify(a))}catch(e){toast("Saving is blocked in this browser")}}
 function setForm(d){
-  $("problem").value=d.problem;$("cat").value=d.cat;$("place").value=d.place;$("people").value=d.people;$("months").value=d.months;
+  $("problem").value=d.problem;$("cat").value=d.cat;fillSubs();$("sub").value=String(d.subIdx||0);$("place").value=d.place;$("people").value=d.people;$("months").value=d.months;
   $("risk").value=d.risk;$("ask").value=d.ask;$("name").value=d.name;$("rep").value=d.rep;
   EVID.forEach(function(e){$("ev_"+e[0]).checked = d.ev.indexOf(e[0])>-1});
   render();
