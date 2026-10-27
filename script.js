@@ -63,18 +63,12 @@ var RISK_DESCRIPTIONS = [
 var byId = function(id){return document.getElementById(id)};
 var currentTab = 1, attachedFiles = [], previewUrls = [];
 
-// ======================================================================
-// SECTION 2: BUILD THE FORM
-// Fill the dropdowns and evidence checkboxes when the page loads
-// ======================================================================
+//Form Creation 
 Object.keys(PROBLEM_CATEGORIES).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PROBLEM_CATEGORIES[k].label;byId("category").appendChild(o)});
 fillSubcategoryOptions();
 EVIDENCE_TYPES.forEach(function(e){var l=document.createElement("label");var c=document.createElement("input");c.type="checkbox";c.id="evidence-"+e[0];var s=document.createElement("span");s.textContent=e[1];l.appendChild(c);l.appendChild(s);byId("evidenceList").appendChild(l)});
 
-// ======================================================================
-// SECTION 3: READ + SCORE
-// Read the form, calculate the 0-100 score, give a verdict, routing advice, and tips
-// ======================================================================
+//Scoring Functions
 function readForm(){
   var ev = EVIDENCE_TYPES.filter(function(e){return byId("evidence-"+e[0]).checked}).map(function(e){return e[0]});
   return {
@@ -121,10 +115,7 @@ function getImprovementTips(d,s){
   return s.parts.map(function(p){return {k:p.k,r:p.v/p.max}}).sort(function(a,b){return a.r-b.r}).slice(0,2).map(function(x){return T[x.k]});
 }
 
-// ======================================================================
-// SECTION 4: WRITING
-// Generate the letter and the 60-second call script from templates
-// ======================================================================
+//Templates
 function describeDuration(m){ if(m<1) return " recently"; if(m<12) return " for about "+m+(m===1?" month":" months"); var y=Math.round(m/12*10)/10; return " for about "+y+(y===1?" year":" years"); }
 function describeEvidence(d){
   var m = {photos:"photos and video",log:"a dated log of what has happened",neighbors:"support from my neighbors",report:"an official report on file"};
