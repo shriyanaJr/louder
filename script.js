@@ -1,7 +1,3 @@
-// ======================================================================
-// SECTION 1: DATA
-// Problem categories, evidence types, and safety-risk wording
-// ======================================================================
 var PROBLEM_CATEGORIES = {
   roads:{label:"Roads, sidewalks and transit", fit:0.9, progs:["the Safe Streets and Roads for All grant program","federal-aid highway funding"], subs:[
     ["Unsafe crossing or intersection",null],["Missing or broken sidewalk",null],["Potholes and road damage",null],
@@ -63,12 +59,12 @@ var RISK_DESCRIPTIONS = [
 var byId = function(id){return document.getElementById(id)};
 var currentTab = 1, attachedFiles = [], previewUrls = [];
 
-//Form Creation 
+
 Object.keys(PROBLEM_CATEGORIES).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PROBLEM_CATEGORIES[k].label;byId("category").appendChild(o)});
 fillSubcategoryOptions();
 EVIDENCE_TYPES.forEach(function(e){var l=document.createElement("label");var c=document.createElement("input");c.type="checkbox";c.id="evidence-"+e[0];var s=document.createElement("span");s.textContent=e[1];l.appendChild(c);l.appendChild(s);byId("evidenceList").appendChild(l)});
 
-//Scoring Functions
+
 function readForm(){
   var ev = EVIDENCE_TYPES.filter(function(e){return byId("evidence-"+e[0]).checked}).map(function(e){return e[0]});
   return {
@@ -115,7 +111,7 @@ function getImprovementTips(d,s){
   return s.parts.map(function(p){return {k:p.k,r:p.v/p.max}}).sort(function(a,b){return a.r-b.r}).slice(0,2).map(function(x){return T[x.k]});
 }
 
-//Templates
+
 function describeDuration(m){ if(m<1) return " recently"; if(m<12) return " for about "+m+(m===1?" month":" months"); var y=Math.round(m/12*10)/10; return " for about "+y+(y===1?" year":" years"); }
 function describeEvidence(d){
   var m = {photos:"photos and video",log:"a dated log of what has happened",neighbors:"support from my neighbors",report:"an official report on file"};
@@ -146,7 +142,7 @@ function writeCallScript(d){
   "Could you tell me who on the staff handles "+PROBLEM_CATEGORIES[d.cat].label.toLowerCase()+"? I’d be glad to email photos and details. And may I leave my phone number in case someone wants to follow up?\n\nThank you so much for your time.";
 }
 
-// ---------- renderCase ----------
+
 function renderCase(){
   var d = readForm(), s = calculateScore(d), v = getVerdict(s.total);
   byId("riskOut").textContent = d.risk;
@@ -181,10 +177,7 @@ function renderWhoToCall(d){
 }
 function showToast(m){var t=byId("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},1800)}
 
-// ======================================================================
-// SECTION 6: EVENTS
-// Buttons, tabs, copy, email, file previews, ZIP lookup, and the example case
-// ======================================================================
+
 byId("category").addEventListener("input",fillSubcategoryOptions);
 document.querySelectorAll("input,select,textarea").forEach(function(el){el.addEventListener("input",renderCase)});
 byId("letterTab").onclick = function(){currentTab=1;renderCase()};
@@ -225,10 +218,7 @@ byId("sample").onclick = function(){
   renderCase();
 };
 
-// ======================================================================
-// SECTION 7: SAVED CASES
-// Save, open, and delete cases using localStorage (safe if storage is blocked)
-// ======================================================================
+
 function loadSavedCases(){try{return JSON.parse(localStorage.getItem("louder.cases")||"[]")}catch(e){return []}}
 function saveCases(a){try{localStorage.setItem("louder.cases",JSON.stringify(a))}catch(e){showToast("Saving is blocked in this browser")}}
 function fillFormFromCase(d){
